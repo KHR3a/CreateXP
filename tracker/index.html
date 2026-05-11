@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CreateXP Tracker</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0a0a0c;
+      color: #fff;
+      padding: 20px;
+      margin: 0;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #00f2ff;
+      text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+    .status {
+      font-size: 12px;
+      padding: 4px 8px;
+      background: rgba(57, 255, 20, 0.2);
+      color: #39ff14;
+      border-radius: 4px;
+      border: 1px solid #39ff14;
+    }
+    .profile {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .level {
+      font-size: 32px;
+      font-weight: bold;
+    }
+    .xp-bar {
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .xp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00f2ff, #39ff14);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .quests {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+      flex-grow: 1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .quest-title {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+    .quest-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .logs {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #888;
+      height: 60px;
+      overflow-y: auto;
+    }
+    #loginOverlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #0a0a0c;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .input-group {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      background: #1a1a2e;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(90deg, #00f2ff, #ff2d55);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .error-msg {
+      color: #ff2d55;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid #ff2d55;
+      color: #ff2d55;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>CreateXP</h1>
+      <div style="display: flex; align-items: center;">
+        <div class="status" id="statusBadge">● Monitoring</div>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+    </div>
+    
+    <div class="profile">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <span class="level" id="levelDisplay">LV.0</span>
+        <span id="xpDisplay" style="color: #aaa;">0 XP</span>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="xpFill" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <div class="quests">
+      <div class="quest-title">Daily Quests</div>
+      <div class="quest-item">
+        <span>💾 Save 5 files</span>
+        <span id="saveQuest">0/5</span>
+      </div>
+      <div class="quest-item">
+        <span>🎬 Export a video</span>
+        <span id="exportQuest">0/1</span>
+      </div>
+    </div>
+
+    <div class="logs" id="logContainer">
+      <!-- Logs will appear here -->
+    </div>
+  </div>
+
+  <div id="loginOverlay">
+    <h1 style="margin-bottom: 30px;">CreateXP</h1>
+    <div class="input-group">
+      <input type="email" id="emailInput" placeholder="Email">
+    </div>
+    <div class="input-group">
+      <input type="password" id="passwordInput" placeholder="Password">
+    </div>
+    <div id="loginError" class="error-msg"></div>
+    <button class="btn" id="loginBtn">Login</button>
+  </div>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>
