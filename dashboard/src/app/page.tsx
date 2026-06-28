@@ -3,8 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Medal, Star, User, Calendar, CalendarDays, Crown } from "lucide-react";
-import { db, auth } from "@/lib/firebase";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { db } from "@/lib/firebase";
 import { collection, collectionGroup, query, orderBy, limit, onSnapshot, where, Timestamp } from "firebase/firestore";
 import UserProfileModal from "@/components/UserProfileModal";
 
@@ -30,20 +29,6 @@ export default function RankingPage() {
   const [isPeriodLoading, setIsPeriodLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<RankedUser | null>(null);
   const [period, setPeriod] = useState<Period>("total");
-
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
-
-  // 認証状態の監視
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      // 未ログイン状態が確定した場合もLoadingを解除（データは空になる）
-      if (!user) {
-        setIsLoading(false);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
 
   // 全ユーザーデータをリアルタイムで取得
   useEffect(() => {
