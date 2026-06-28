@@ -99,9 +99,9 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
             <span className="flex items-center gap-2">UserProfile.exe</span>
             <button
               onClick={onClose}
-              className="win95-btn py-0 px-2 ml-auto text-black border-2"
+              className="win95-btn-close ml-auto"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" strokeWidth={3} />
             </button>
           </div>
 

@@ -312,22 +312,28 @@ export default function MyPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-8 pt-16 pb-12">
-        <div className="flex gap-2 mb-8 border-b-2 border-gray-200 pb-px">
+        <div className="flex gap-1 mb-6 border-b-2 border-white pb-px">
           <button 
             onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-2 px-6 py-3 font-bold transition-colors relative ${activeTab === "overview" ? "text-gray-900" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-t-lg"}`}
+            className={`flex items-center gap-2 px-6 py-2 font-bold font-[Tahoma] text-sm ${
+              activeTab === "overview" 
+                ? "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-[#000000] border-b-0 z-10 -mb-[2px] pb-[4px]" 
+                : "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-b-2 border-[#000000] hover:bg-[#d0d0d0]"
+            }`}
           >
-            <Zap className="w-5 h-5" />
+            <Zap className="w-4 h-4" />
             Overview
-            {activeTab === "overview" && <motion.div layoutId="tabIndicator" className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-neon-blue" />}
           </button>
           <button 
             onClick={() => setActiveTab("settings")}
-            className={`flex items-center gap-2 px-6 py-3 font-bold transition-colors relative ${activeTab === "settings" ? "text-gray-900" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-t-lg"}`}
+            className={`flex items-center gap-2 px-6 py-2 font-bold font-[Tahoma] text-sm ${
+              activeTab === "settings" 
+                ? "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-[#000000] border-b-0 z-10 -mb-[2px] pb-[4px]" 
+                : "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-b-2 border-[#000000] hover:bg-[#d0d0d0]"
+            }`}
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-4 h-4" />
             Settings
-            {activeTab === "settings" && <motion.div layoutId="tabIndicator" className="absolute bottom-[-2px] left-0 right-0 h-0.5 bg-neon-pink" />}
           </button>
         </div>
 
