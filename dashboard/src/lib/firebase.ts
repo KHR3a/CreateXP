@@ -15,21 +15,23 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// ビルド時（プリレンダリング時）にAPIキーが未定義の場合でもクラッシュしないようにガード
+// ブラウザ環境（クライアントサイド）でのみFirebaseを初期化する
+// サーバーサイド(Edgeランタイム)で初期化するとAPI不足でクラッシュ(500エラー)するため
+const isBrowser = typeof window !== 'undefined';
+
 let _app: FirebaseApp;
 let _db: Firestore;
 let _auth: Auth;
 let _storage: FirebaseStorage;
 
-if (firebaseConfig.apiKey) {
+if (firebaseConfig.apiKey && isBrowser) {
   // 多重初期化を防止するガード
   _app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
   _db = getFirestore(_app);
   _auth = getAuth(_app);
   _storage = getStorage(_app);
 } else {
-  // ビルド時のプリレンダリング用ダミー（実行時には環境変数が利用可能）
-  console.warn('Firebase APIキーが未設定です。ビルド時のプリレンダリングではFirebase機能は無効です。');
+  // サーバーサイドSSRおよびビルド時のプリレンダリング用ダミー
   _app = {} as FirebaseApp;
   _db = {} as Firestore;
   _auth = {} as Auth;
