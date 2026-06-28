@@ -16,21 +16,31 @@ const firebaseConfig = {
 };
 
 // ビルド時（プリレンダリング時）にAPIキーが未定義の場合でもクラッシュしないようにガード
-let app: FirebaseApp | null = null;
-let db: Firestore | null = null;
-let auth: Auth | null = null;
-let storage: FirebaseStorage | null = null;
+let _app: FirebaseApp;
+let _db: Firestore;
+let _auth: Auth;
+let _storage: FirebaseStorage;
 
 if (firebaseConfig.apiKey) {
   // 多重初期化を防止するガード
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
+  _app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  _db = getFirestore(_app);
+  _auth = getAuth(_app);
+  _storage = getStorage(_app);
 } else {
   // ビルド時のプリレンダリング用ダミー（実行時には環境変数が利用可能）
   console.warn('Firebase APIキーが未設定です。ビルド時のプリレンダリングではFirebase機能は無効です。');
+  _app = {} as FirebaseApp;
+  _db = {} as Firestore;
+  _auth = {} as Auth;
+  _storage = {} as FirebaseStorage;
 }
+
+// 既存コードとの互換性を保つためにそのままexport
+const app = _app;
+const db = _db;
+const auth = _auth;
+const storage = _storage;
 
 export { app, db, auth, storage };
 
