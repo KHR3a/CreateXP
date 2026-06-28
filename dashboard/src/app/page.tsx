@@ -228,9 +228,9 @@ export default function RankingPage() {
                       <div className="flex items-center justify-between p-4">
                         <div className="flex items-center gap-6">
                           {user.photoURL ? (
-                            <img src={user.photoURL} alt="Avatar" className="w-16 h-16 rounded-none object-cover win95-inset" />
+                            <img src={user.photoURL} alt="Avatar" className="w-16 h-16 rounded-none object-cover border-2 border-gray-400" />
                           ) : (
-                            <div className="w-16 h-16 rounded-none win95-inset bg-gray-200 flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-none border-2 border-gray-400 bg-gray-200 flex items-center justify-center">
                               <User className="w-8 h-8 text-gray-500" />
                             </div>
                           )}
@@ -246,12 +246,11 @@ export default function RankingPage() {
                         <div className="text-right win95-inset p-3 bg-white">
                           {period === "total" ? (
                             <>
-                              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
-                              <div className="text-5xl font-black text-blue-700 leading-none tracking-tighter flex items-center justify-end gap-1">
-                                {Math.floor(user.totalXP / 100)}
+                              <div className="text-5xl font-black text-blue-700 leading-none tracking-tighter flex items-baseline justify-end gap-1">
+                                <span className="text-2xl text-gray-500 tracking-normal mr-1">Lv.</span>{Math.floor(user.totalXP / 100)}
                                 {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-6 h-6 text-yellow-500" />}
                               </div>
-                              <div className="text-sm font-bold text-gray-500 mt-1">{displayXP.toLocaleString()} XP</div>
+                              <div className="text-sm font-bold text-gray-500 mt-1">Total: {displayXP.toLocaleString()} XP</div>
                             </>
                           ) : (
                             <>
@@ -291,9 +290,9 @@ export default function RankingPage() {
                   <div className="flex items-center gap-4 w-1/2">
                     <span className="text-lg font-black text-gray-400 group-hover:text-gray-300 w-8 text-center">{rank}</span>
                     {user.photoURL ? (
-                      <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-none object-cover win95-inset group-hover:border-white" />
+                      <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-none object-cover border border-gray-400 group-hover:border-white" />
                     ) : (
-                      <div className="w-8 h-8 rounded-none win95-inset bg-gray-200 flex items-center justify-center group-hover:border-white">
+                      <div className="w-8 h-8 rounded-none border border-gray-400 bg-gray-200 flex items-center justify-center group-hover:border-white">
                         <User className="w-4 h-4 text-gray-500" />
                       </div>
                     )}

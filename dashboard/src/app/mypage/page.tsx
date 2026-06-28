@@ -283,10 +283,10 @@ export default function MyPage() {
         
         {/* プロフィール情報（バナーと重なる） */}
         <div className="relative z-10 flex items-end gap-6 translate-y-8">
-          <div className="w-32 h-32 win95-inset bg-gray-200 p-1">
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center border-2 border-white">
+          <div className="w-32 h-32 border-4 border-gray-400 bg-gray-200">
+            <div className="w-full h-full flex items-center justify-center">
               {photoURL ? (
-                <img src={photoURL} alt="Avatar" className="w-full h-full object-cover win95-inset" />
+                <img src={photoURL} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-16 h-16 text-gray-400" />
               )}
@@ -356,14 +356,15 @@ export default function MyPage() {
                 </div>
                 <div className="win95-inset bg-white p-6 relative overflow-hidden">
                   
-                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Current Level</h3>
-                  <div className="flex flex-col mb-6">
+                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Current Status</h3>
+                  <div className="flex items-baseline mb-6">
+                    <span className="text-3xl text-gray-500 font-bold mr-2">Lv.</span>
                     <motion.div
                       key={level}
                       initial={{ scale: 1.1, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 300 }}
-                      className="text-7xl font-black text-gray-900 leading-none font-[Tahoma]"
+                      className="text-7xl font-black text-blue-800 leading-none font-[Tahoma]"
                     >
                       {level}
                     </motion.div>

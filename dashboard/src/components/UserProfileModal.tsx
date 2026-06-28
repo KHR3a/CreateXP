@@ -108,8 +108,8 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
           <div className="win95-inset bg-gray-100 px-6 pb-6 pt-10 relative">
             {/* プロフィールアイコン */}
             <div className="flex justify-between items-end mb-4">
-              <div className="w-24 h-24 win95-inset bg-white p-1">
-                <div className="w-full h-full border-2 border-gray-300 flex items-center justify-center bg-gray-200">
+              <div className="w-24 h-24 border-2 border-gray-400 bg-gray-200">
+                <div className="w-full h-full flex items-center justify-center">
                   {user.photoURL ? (
                     <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -142,9 +142,9 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="win95-inset bg-white p-4 flex flex-col items-center justify-center">
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
-                <div className="text-4xl font-black text-blue-700">
-                  {level}
+                <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Status</div>
+                <div className="text-4xl font-black text-blue-700 flex items-baseline">
+                  <span className="text-lg text-gray-500 mr-1">Lv.</span>{level}
                 </div>
               </div>
               <div className="win95-inset bg-white p-4 flex flex-col items-center justify-center">
