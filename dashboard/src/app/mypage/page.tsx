@@ -274,10 +274,12 @@ export default function MyPage() {
 
   return (
     <main className="w-full min-h-screen">
-      {/* ヒーローバナー領域 (Tracker.gg風) */}
-      <div className="w-full h-48 bg-gray-900 relative overflow-hidden flex items-end px-8 max-w-7xl mx-auto rounded-b-3xl">
-        <div className="absolute inset-0 opacity-30 bg-gradient-to-r from-neon-blue via-gray-900 to-neon-pink"></div>
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      {/* ヒーローバナー領域 (Win95風) */}
+      <div className="w-full h-48 relative flex items-end px-8 max-w-7xl mx-auto mb-12">
+        <div className="absolute inset-0 bg-[#000080] border-b-4 border-gray-400 overflow-hidden">
+          <div className="absolute inset-0 opacity-40 bg-gradient-to-r from-blue-800 to-cyan-600"></div>
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        </div>
         
         {/* プロフィール情報（バナーと重なる） */}
         <div className="relative z-10 flex items-end gap-6 translate-y-8">
