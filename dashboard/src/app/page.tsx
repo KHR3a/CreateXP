@@ -47,9 +47,6 @@ export default function RankingPage() {
 
   // 全ユーザーデータをリアルタイムで取得
   useEffect(() => {
-    // ログインしていない場合はFirestoreのルール（認証必須）により取得できないためスキップ
-    if (!currentUser) return;
-
     setIsLoading(true);
     const q = query(collection(db, "users"), orderBy("totalXP", "desc"), limit(100));
     
@@ -74,7 +71,7 @@ export default function RankingPage() {
     });
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, []);
 
   // 期間別のXP集計（Daily / Weekly / Monthly）
   useEffect(() => {
