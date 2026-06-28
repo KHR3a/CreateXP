@@ -211,6 +211,8 @@ export default function RankingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.08 }}
                       onClick={() => setSelectedUser(user)}
+                      className="stat-card p-1 cursor-pointer hover:-translate-y-1 transition-transform bg-gray-200"
+                    >
                       <div className="win95-titlebar mb-3">
                         <div className="flex items-center gap-2">
                           {getRankMedal(index)}
