@@ -1,13 +1,15 @@
 "use client";
 
+export const runtime = "edge";
+
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Medal, Star, User, Calendar, CalendarDays, Crown } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, limit, onSnapshot, collectionGroup, where, Timestamp, getDocs } from "firebase/firestore";
+import { collection, collectionGroup, query, orderBy, limit, onSnapshot, where, Timestamp } from "firebase/firestore";
 import UserProfileModal from "@/components/UserProfileModal";
 
-type Period = "total" | "monthly" | "weekly";
+type Period = "total" | "monthly" | "weekly" | "daily";
 
 interface RankedUser {
   id: string;
@@ -19,6 +21,7 @@ interface RankedUser {
   hideActivity?: boolean;
   socialInstagram?: string;
   socialX?: string;
+  achievements?: string[];
 }
 
 export default function RankingPage() {
@@ -42,7 +45,8 @@ export default function RankingPage() {
         hideFromRanking: doc.data().hideFromRanking || false,
         hideActivity: doc.data().hideActivity || false,
         socialInstagram: doc.data().socialInstagram || "",
-        socialX: doc.data().socialX || ""
+        socialX: doc.data().socialX || "",
+        achievements: doc.data().achievements || []
       })) as RankedUser[];
       
       setAllUsers(users);
@@ -52,48 +56,48 @@ export default function RankingPage() {
     return () => unsubscribe();
   }, []);
 
-  // 期間別のXP集計（Weekly / Monthly）
+  // 期間別のXP集計（Daily / Weekly / Monthly）
   useEffect(() => {
     if (period === "total") {
       setPeriodXpMap({});
       return;
     }
 
+    if (allUsers.length === 0) return;
+
     setIsPeriodLoading(true);
 
     const now = new Date();
-    const startDate = period === "weekly"
+    const startDate = period === "daily"
+      ? new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      : period === "weekly"
       ? new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
       : new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     const activitiesQuery = query(
       collectionGroup(db, "activities"),
-      where("timestamp", ">=", Timestamp.fromDate(startDate)),
-      orderBy("timestamp", "desc")
+      where("timestamp", ">=", Timestamp.fromDate(startDate))
     );
 
     const unsubscribe = onSnapshot(activitiesQuery, (snapshot) => {
       const xpMap: Record<string, number> = {};
-      snapshot.docs.forEach(doc => {
-        // パスは users/{uid}/activities/{activityId}
-        const pathParts = doc.ref.path.split('/');
-        const uid = pathParts[1];
-        const xp = doc.data().xp || 0;
-        xpMap[uid] = (xpMap[uid] || 0) + xp;
+      snapshot.forEach(doc => {
+        // doc.ref.path は 'users/{uid}/activities/{activityId}' の形式
+        const pathSegments = doc.ref.path.split('/');
+        const uid = pathSegments[1];
+        if (uid) {
+          xpMap[uid] = (xpMap[uid] || 0) + (doc.data().xp || 0);
+        }
       });
-
       setPeriodXpMap(xpMap);
       setIsPeriodLoading(false);
-    }, (error: Error) => {
-      console.error("Failed to fetch period XP:", error);
-      if (error.message?.includes("index")) {
-        console.warn("Firestoreにインデックスの作成が必要です。コンソールのリンクから作成してください。");
-      }
+    }, (error) => {
+      console.error("Failed to fetch period activities:", error);
       setIsPeriodLoading(false);
     });
 
     return () => unsubscribe();
-  }, [period]);
+  }, [period, allUsers]);
 
   // 表示用のランキングデータ（フィルタリングとソート済み）
   const rankedUsers = useMemo(() => {
@@ -103,10 +107,16 @@ export default function RankingPage() {
       return visible.slice(0, 50);
     }
 
-    // 期間別: periodXpMapのXPでソートし直す
+    // 期間別: periodXpMapのXPでソートし直す (0XPの人は除外し、同点ならTotalXPでソート)
     return visible
       .map(u => ({ ...u, periodXP: periodXpMap[u.id] || 0 }))
-      .sort((a, b) => b.periodXP! - a.periodXP!)
+      .filter(u => u.periodXP! > 0)
+      .sort((a, b) => {
+        if (b.periodXP! !== a.periodXP!) {
+          return b.periodXP! - a.periodXP!;
+        }
+        return b.totalXP - a.totalXP;
+      })
       .slice(0, 50);
   }, [allUsers, period, periodXpMap]);
 
@@ -142,24 +152,25 @@ export default function RankingPage() {
     total: "Total",
     monthly: "Monthly",
     weekly: "Weekly",
+    daily: "Daily",
   };
 
   return (
     <main className="p-8 max-w-5xl mx-auto w-full">
       <div className="text-center mb-12 relative pt-8">
         <h1 className="text-5xl font-black mb-4 flex items-center justify-center gap-4 text-gray-900 tracking-tight">
-          <Star className="w-10 h-10 text-neon-pink" />
+          <Star className="w-10 h-10 text-neon-orange" />
           <span className="pop-gradient-text">
             Global Ranking
           </span>
-          <Star className="w-10 h-10 text-neon-pink" />
+          <Star className="w-10 h-10 text-neon-orange" />
         </h1>
         <p className="text-gray-500 font-bold tracking-widest uppercase">Top Creators by Level</p>
       </div>
 
       {/* 期間切り替えタブ */}
       <div className="flex justify-center gap-3 mb-10">
-        {(["total", "monthly", "weekly"] as Period[]).map((p) => (
+        {(["total", "monthly", "weekly", "daily"] as Period[]).map((p) => (
           <button
             key={p}
             onClick={() => setPeriod(p)}
@@ -169,6 +180,7 @@ export default function RankingPage() {
                 : "bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-gray-200"
             }`}
           >
+            {p === "daily" && <Star className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
             {p === "weekly" && <CalendarDays className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
             {p === "monthly" && <Calendar className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
             {p === "total" && <Crown className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
@@ -179,11 +191,11 @@ export default function RankingPage() {
 
       {isLoading ? (
         <div className="flex justify-center mt-20">
-          <div className="w-12 h-12 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-neon-orange border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : isPeriodLoading ? (
         <div className="flex flex-col items-center mt-16 gap-4">
-          <div className="w-10 h-10 border-4 border-neon-pink border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-neon-orange border-t-transparent rounded-full animate-spin"></div>
           <p className="text-gray-400 text-sm">Loading {periodLabels[period]} ranking...</p>
         </div>
       ) : (
@@ -225,8 +237,9 @@ export default function RankingPage() {
                       
                       <div className="text-right">
                         <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
-                        <div className="text-5xl font-black pop-gradient-text leading-none tracking-tighter pb-1">
+                        <div className="text-5xl font-black pop-gradient-text leading-none tracking-tighter pb-1 flex items-center justify-end gap-1">
                           {Math.floor(user.totalXP / 100)}
+                          {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-6 h-6 text-yellow-500" />}
                         </div>
                       </div>
                     </motion.div>
@@ -267,8 +280,14 @@ export default function RankingPage() {
                   
                   <div className="flex items-center gap-6 w-1/2 justify-end">
                     <div className="text-sm font-bold text-gray-500 hidden sm:block">{displayXP.toLocaleString()} XP</div>
-                    <div className="text-2xl font-black text-gray-400 leading-none w-16 text-right">
+                    <div className={`text-2xl font-black leading-none w-20 text-right flex items-center justify-end gap-1 ${
+                      Math.floor(user.totalXP / 100) >= 500 ? "text-yellow-500" :
+                      Math.floor(user.totalXP / 100) >= 100 ? "text-orange-500" :
+                      Math.floor(user.totalXP / 100) >= 50 ? "text-amber-500" :
+                      "text-gray-400"
+                    }`}>
                       {Math.floor(user.totalXP / 100)}
+                      {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-4 h-4 text-yellow-500" />}
                     </div>
                   </div>
                 </motion.div>

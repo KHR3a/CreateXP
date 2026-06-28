@@ -1,10 +1,14 @@
-const { app, BrowserWindow, Tray, Menu, Notification, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, Notification, ipcMain, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const chokidar = require('chokidar');
 
 // 環境変数の読み込み
-require('dotenv').config({ path: path.join(__dirname, '.env.local') });
+let envPath = path.join(__dirname, '.env.local');
+if (app.isPackaged) {
+  envPath = path.join(path.dirname(app.getPath('exe')), '.env.local');
+}
+require('dotenv').config({ path: envPath });
 
 // Firebaseの初期化
 const { initializeApp } = require('firebase/app');
@@ -56,12 +60,33 @@ function saveConfig(config) {
   } catch (e) {}
 }
 
+// 暗号化・復号化ヘルパー
+function encrypt(text) {
+  if (safeStorage.isEncryptionAvailable()) {
+    return safeStorage.encryptString(text).toString('base64');
+  }
+  throw new Error('Encryption is not available on this system.');
+}
+
+function decrypt(base64Text) {
+  if (safeStorage.isEncryptionAvailable()) {
+    return safeStorage.decryptString(Buffer.from(base64Text, 'base64'));
+  }
+  throw new Error('Decryption is not available on this system.');
+}
+
 // IPCハンドラ
 ipcMain.handle('auth-login', async (event, { email, password }) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     // ログイン成功時に認証情報を保存（Auto Login用）
-    saveConfig({ email, password });
+    let encryptedPassword = null;
+    try {
+      encryptedPassword = encrypt(password);
+    } catch (e) {
+      console.error('Failed to encrypt password:', e);
+    }
+    saveConfig({ email, encryptedPassword });
     return { success: true };
   } catch (error) {
     return { error: error.message };
@@ -83,7 +108,8 @@ ipcMain.handle('auth-logout', async () => {
 let appState = {
   xp: 0,
   level: 0,
-  quests: { saves: 0, exports: 0 }
+  quests: { date: '', saves: 0, exports: 0 },
+  displayName: ''
 };
 
 function createWindow() {
@@ -100,6 +126,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile('index.html');
+  mainWindow.setMenuBarVisibility(false); // メニューバーを非表示にする
 
   // ウィンドウの「X」ボタンを押しても終了せず非表示にする
   mainWindow.on('close', (event) => {
@@ -131,13 +158,24 @@ function syncFromFirestore() {
       if (userDoc.exists()) {
         appState.xp = userDoc.data().totalXP || 0;
         appState.level = Math.floor(appState.xp / 100);
+        appState.displayName = userDoc.data().displayName || '';
+        
+        // デイリークエストの復元・リセット処理
+        const today = getTodayString();
+        const storedQuests = userDoc.data().quests || { date: today, saves: 0, exports: 0 };
+        if (storedQuests.date === today) {
+          appState.quests = storedQuests;
+        } else {
+          appState.quests = { date: today, saves: 0, exports: 0 };
+        }
+
         // UIを更新
         if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
           mainWindow.webContents.send('update-state', appState);
         }
       } else {
         // 初期データ作成
-        await setDoc(userDocRef, { totalXP: 0, level: 0 });
+        await setDoc(userDocRef, { totalXP: 0, level: 0, displayName: currentUser.email.split('@')[0] });
       }
     });
   } catch (e) {
@@ -145,7 +183,18 @@ function syncFromFirestore() {
   }
 }
 
+function getTodayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function updateState(type) {
+  // 日付が変わっていればクエストリセット
+  const today = getTodayString();
+  if (appState.quests.date !== today) {
+    appState.quests = { date: today, saves: 0, exports: 0 };
+  }
+
   // XPはFirestoreのonSnapshotから同期されるため、ローカルでは加算しない
   // クエスト進捗のみローカルで管理
   if (type === 'Save') appState.quests.saves++;
@@ -169,7 +218,7 @@ function sendLogToUI(type, file, xp) {
 
 function showNotification(title, body) {
   if (Notification.isSupported()) {
-    const iconPath = path.join(__dirname, 'icon.png');
+    const iconPath = path.join(__dirname, 'tray-icon.png');
     const options = { title, body };
     if (fs.existsSync(iconPath)) options.icon = iconPath;
     new Notification(options).show();
@@ -214,11 +263,12 @@ function startTracker() {
         timestamp: serverTimestamp()
       });
 
-      // 2. ユーザーの累計XPを更新（ドキュメント未存在でも安全）
+      // 2. ユーザーの累計XPとクエスト進捗を更新
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, {
         totalXP: increment(xp),
-        lastActivity: serverTimestamp()
+        lastActivity: serverTimestamp(),
+        quests: appState.quests
       }, { merge: true });
     } catch (e) {
       console.error("❌ Firestore Write Error:", e);
@@ -344,11 +394,34 @@ app.whenReady().then(() => {
 
   // 自動ログインの試行
   const savedConfig = loadConfig();
-  if (savedConfig && savedConfig.email && savedConfig.password) {
-    console.log("🔄 Attempting Auto Login...");
-    signInWithEmailAndPassword(auth, savedConfig.email, savedConfig.password).catch((e) => {
-      console.warn("⚠️ Auto login failed:", e.message);
-    });
+  if (savedConfig) {
+    let email = savedConfig.email;
+    let password = null;
+
+    if (savedConfig.encryptedPassword) {
+      try {
+        password = decrypt(savedConfig.encryptedPassword);
+      } catch (e) {
+        console.error("⚠️ Failed to decrypt saved password:", e);
+      }
+    } else if (savedConfig.password) {
+      // 移行パス: 平文パスワードが存在する場合、暗号化し直して保存
+      password = savedConfig.password;
+      try {
+        const encrypted = encrypt(password);
+        saveConfig({ email, encryptedPassword: encrypted });
+        console.log("🔒 Password migrated to encrypted format.");
+      } catch (e) {
+        console.error("⚠️ Failed to migrate password to encrypted format:", e);
+      }
+    }
+
+    if (email && password) {
+      console.log("🔄 Attempting Auto Login...");
+      signInWithEmailAndPassword(auth, email, password).catch((e) => {
+        console.warn("⚠️ Auto login failed:", e.message);
+      });
+    }
   }
 
   // トレイアイコンの設定

@@ -2,6 +2,7 @@
 window.electronAPI.onUpdateState((state) => {
   document.getElementById('levelDisplay').innerText = `LV.${state.level}`;
   document.getElementById('xpDisplay').innerText = `${state.xp} XP`;
+  document.getElementById('usernameDisplay').innerText = state.displayName || '';
   
   const progressPercentage = ((state.xp % 100) / 100) * 100;
   document.getElementById('xpFill').style.width = `${progressPercentage}%`;
@@ -74,5 +75,6 @@ window.electronAPI.onAuthStateChanged((user) => {
     document.getElementById('statusBadge').style.color = '#aaa';
     document.getElementById('statusBadge').style.borderColor = '#555';
     document.getElementById('statusBadge').style.background = 'rgba(255, 255, 255, 0.05)';
+    document.getElementById('usernameDisplay').innerText = '';
   }
 });

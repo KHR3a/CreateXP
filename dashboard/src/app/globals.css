@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 @import "tailwindcss";
 
 @theme {
   --color-neon-blue: #00d4ff;
   --color-neon-pink: #ff2a5f;
   --color-neon-green: #20e300;
+  --color-neon-orange: #ff6b00;
   --color-dark-bg: #f4f6f8;
   --color-panel-bg: #ffffff;
 }
@@ -56,3 +58,106 @@ body {
 .pop-gradient-bg {
   background: linear-gradient(135deg, #ff6b00, #ff2a5f);
 }
+
+/* ドット絵風のフォント */
+.font-pixel {
+  font-family: 'DotGothic16', sans-serif;
+  letter-spacing: 0.05em;
+  -webkit-font-smoothing: none;
+}
+
+/* ドット絵風のコンテナボーダー */
+.pixel-border {
+  border: 4px solid #111827;
+  border-radius: 0;
+  box-shadow: 
+    4px 4px 0px 0px rgba(17, 24, 39, 1),
+    inset -4px -4px 0px 0px rgba(0, 0, 0, 0.2);
+  image-rendering: pixelated;
+  transition: all 0.1s;
+}
+
+.pixel-border:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 
+    6px 6px 0px 0px rgba(17, 24, 39, 1),
+    inset -4px -4px 0px 0px rgba(0, 0, 0, 0.2);
+}
+
+.pixel-border-sm {
+  border: 3px solid #111827;
+  border-radius: 0;
+  box-shadow: 
+    3px 3px 0px 0px rgba(17, 24, 39, 1),
+    inset -3px -3px 0px 0px rgba(0, 0, 0, 0.2);
+  image-rendering: pixelated;
+}
+
+/* リッチなアイテムスロット風のドット絵ボーダー */
+.pixel-slot {
+  position: relative;
+  border: 4px solid #1f2937;
+  box-shadow: 
+    inset 4px 4px 0px 0px rgba(255, 255, 255, 0.4),
+    inset -4px -4px 0px 0px rgba(0, 0, 0, 0.4),
+    4px 4px 0px 0px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  image-rendering: pixelated;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ベースカラーの上にディザリングを適用するための準備 */
+  z-index: 1;
+}
+
+/* ディザリング（網目状のドットグラデーション）パターン */
+.pixel-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(45deg, rgba(0,0,0,0.15) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.15)),
+    linear-gradient(45deg, rgba(0,0,0,0.15) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.15));
+  background-size: 6px 6px; /* ドットの粗さ */
+  background-position: 0 0, 3px 3px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.pixel-slot:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    inset 4px 4px 0px 0px rgba(255, 255, 255, 0.6),
+    inset -4px -4px 0px 0px rgba(0, 0, 0, 0.5),
+    8px 8px 0px 0px rgba(0, 0, 0, 0.8);
+}
+
+/* キラッと光るアニメーションエフェクト */
+.pixel-slot::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 55%
+  );
+  transform: rotate(45deg);
+  animation: shine 4s infinite;
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  20% { transform: translateX(100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* アイコン自体の立体的な影 */
+.pixel-icon-shadow {
+  filter: invert(1) drop-shadow(3px 3px 0px rgba(0,0,0,0.6));
+  image-rendering: pixelated;
+}
+

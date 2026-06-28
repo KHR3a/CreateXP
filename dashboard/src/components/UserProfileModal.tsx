@@ -6,6 +6,8 @@ import { X, User, Zap, Save, FileVideo, ShieldAlert, Award } from "lucide-react"
 import { InstagramIcon, XIcon } from "@/components/SocialIcons";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { ACHIEVEMENTS } from "@/lib/achievements";
+import TransparentImage from "@/components/TransparentImage";
 
 interface RankedUser {
   id: string;
@@ -15,6 +17,7 @@ interface RankedUser {
   hideActivity?: boolean;
   socialInstagram?: string;
   socialX?: string;
+  achievements?: string[];
 }
 
 interface ActivityLog {
@@ -36,7 +39,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
 
   useEffect(() => {
     let isMounted = true;
-    
+
     if (!user) {
       return;
     }
@@ -84,7 +87,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" onClick={onClose}>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -92,7 +95,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
           className="bg-white w-full max-w-md relative overflow-hidden rounded-3xl shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <button 
+          <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-black/20 rounded-full transition-colors z-20"
           >
@@ -104,7 +107,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
             <div className="absolute inset-0 opacity-40 bg-gradient-to-r from-neon-blue via-gray-900 to-neon-pink"></div>
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           </div>
-          
+
           <div className="px-6 pb-6 relative">
             {/* プロフィールアイコン（バナーに重なる） */}
             <div className="flex justify-between items-end -mt-12 mb-4">
@@ -117,7 +120,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                   )}
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 {user.socialInstagram && (
                   <a href={user.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-pink-50 border-2 border-pink-100 hover:bg-pink-500 hover:text-white transition-colors text-pink-500">
@@ -131,7 +134,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                 )}
               </div>
             </div>
-            
+
             <div className="mb-6">
               <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-baseline gap-1">
                 {user.displayName.split('#')[0]}
@@ -155,13 +158,41 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
               </div>
             </div>
 
+            {/* Achievements */}
+            {user.achievements && user.achievements.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2 border-b-2 border-gray-100 pb-2 font-pixel">
+                  <span className="text-lg">🏆</span>
+                  ACHIEVEMENTS
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {ACHIEVEMENTS.filter(a => user.achievements!.includes(a.id)).map(ach => (
+                    <div
+                      key={ach.id}
+                      title={`${ach.title} : ${ach.description}`}
+                      className={`relative flex items-center justify-center w-12 h-12 ${ach.colorClass} pixel-slot text-white cursor-help`}
+                    >
+                      <div className="w-8 h-8 flex items-center justify-center relative z-10">
+                        <TransparentImage
+                          src={ach.pixelIconUrl}
+                          alt={ach.title}
+                          className="w-full h-full object-contain"
+                          style={{ filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.6))', imageRendering: 'pixelated' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Recent Activity */}
             <div>
               <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 border-b-2 border-gray-100 pb-2">
                 <Award className="w-4 h-4 text-neon-pink" />
                 Recent Quests
               </h3>
-              
+
               {user.hideActivity ? (
                 <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-gray-100 border-dashed text-gray-500 font-bold">
                   Private Profile
@@ -176,7 +207,7 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
                     <div key={activity.id} className={`flex items-stretch overflow-hidden relative rounded-lg border-2 border-gray-100 ${activity.type === 'Save' ? 'bg-white' : 'bg-pink-50/50'}`}>
                       {/* 左端のカラーバー */}
                       <div className={`w-2 flex-shrink-0 ${activity.type === 'Save' ? 'bg-neon-blue' : 'bg-neon-pink'}`}></div>
-                      
+
                       <div className="p-3 flex flex-grow justify-between items-center">
                         <div className="overflow-hidden pr-2">
                           <div className="text-xs font-black text-gray-900 mb-0.5">{activity.type.toUpperCase()}</div>

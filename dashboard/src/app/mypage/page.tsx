@@ -1,5 +1,7 @@
 "use client";
 
+export const runtime = "edge";
+
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +11,8 @@ import { db, auth, storage } from "@/lib/firebase";
 import { doc, onSnapshot, collection, query, orderBy, limit, addDoc, serverTimestamp, setDoc, increment, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ACHIEVEMENTS, UserStats } from "@/lib/achievements";
+import TransparentImage from "@/components/TransparentImage";
 
 // ログアイテムの型定義
 interface ActivityLog {
@@ -39,6 +43,9 @@ export default function MyPage() {
 
   const [xp, setXp] = useState(0);
   const [recentLogs, setRecentLogs] = useState<ActivityLog[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [activityCount, setActivityCount] = useState(0);
+  const [hasAutoChecked, setHasAutoChecked] = useState(false); // 初回自動判定フラグ
 
   // Auth状態の監視
   useEffect(() => {
@@ -48,6 +55,46 @@ export default function MyPage() {
     });
     return () => unsubscribe();
   }, []);
+
+  // 初回ロード時の「過去のXP遡及」自動実績解除チェック
+  useEffect(() => {
+    // ユーザー未ログイン、または既にチェック済みなら何もしない
+    if (!user || hasAutoChecked || isAuthLoading) return;
+
+    // XPが0の場合はまだデータがロードされていない可能性があるので少し待つ
+    // ただし、本当に0の新規ユーザーもいるため、タイマーで遅延実行する
+    const timer = setTimeout(async () => {
+      const currentStats: UserStats = {
+        totalXP: xp,
+        activityCount: activityCount,
+      };
+
+      const newUnlocks = ACHIEVEMENTS.filter(a => 
+        !unlockedAchievements.includes(a.id) && a.checkUnlock(currentStats)
+      );
+
+      if (newUnlocks.length > 0) {
+        try {
+          const newIds = newUnlocks.map(a => a.id);
+          const updatedAchievements = [...unlockedAchievements, ...newIds];
+          
+          const userDocRef = doc(db, "users", user.uid);
+          await updateDoc(userDocRef, {
+            achievements: updatedAchievements,
+          });
+          
+          setUnlockedAchievements(updatedAchievements);
+          setSaveMessage(`🎉 Auto-Unlocked ${newUnlocks.length} Past Achievements!`);
+          setTimeout(() => setSaveMessage(""), 6000);
+        } catch (e) {
+          console.error("Auto unlock failed:", e);
+        }
+      }
+      setHasAutoChecked(true); // 1回だけ実行
+    }, 2000); // データロード待ちとして2秒後に判定
+
+    return () => clearTimeout(timer);
+  }, [user, xp, activityCount, unlockedAchievements, hasAutoChecked, isAuthLoading]);
 
   // Firestoreからリアルタイムにデータを取得
   useEffect(() => {
@@ -75,6 +122,8 @@ export default function MyPage() {
         if (data.socialX !== undefined) setSocialX(data.socialX);
         if (data.hideActivity !== undefined) setHideActivity(data.hideActivity);
         if (data.hideFromRanking !== undefined) setHideFromRanking(data.hideFromRanking);
+        if (data.achievements) setUnlockedAchievements(data.achievements);
+        if (data.activityCount !== undefined) setActivityCount(data.activityCount);
       } else {
         setXp(0);
       }
@@ -176,16 +225,39 @@ export default function MyPage() {
         timestamp: serverTimestamp()
       });
 
-      // 2. ユーザーの累計XPを更新（ドキュメント未存在でも安全）
+      // 2. ユーザーの累計XPとアクティビティ回数を更新
       const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, {
         totalXP: increment(gainedXp),
+        activityCount: increment(1),
         lastActivity: serverTimestamp()
       }, { merge: true });
+
+      // 3. 実績のアンロック判定
+      const currentStats: UserStats = {
+        totalXP: xp + gainedXp,
+        activityCount: activityCount + 1,
+      };
+
+      const newUnlocks = ACHIEVEMENTS.filter(a => 
+        !unlockedAchievements.includes(a.id) && a.checkUnlock(currentStats)
+      );
+
+      if (newUnlocks.length > 0) {
+        const newIds = newUnlocks.map(a => a.id);
+        const updatedAchievements = [...unlockedAchievements, ...newIds];
+        await updateDoc(userDocRef, {
+          achievements: updatedAchievements,
+        });
+        setUnlockedAchievements(updatedAchievements);
+        
+        setSaveMessage(`🏆 Unlocked: ${newUnlocks.map(a => a.title).join(", ")}!`);
+        setTimeout(() => setSaveMessage(""), 5000);
+      }
     } catch (e) {
       console.error("Simulation failed:", e);
     }
-  }, [user]);
+  }, [user, xp, activityCount, unlockedAchievements]);
 
   // 未ログインアクセスの保護
   useEffect(() => {
@@ -377,6 +449,57 @@ export default function MyPage() {
                 )}
               </div>
             </div>
+
+            {/* Achievements (ドット絵風) */}
+            <div className="md:col-span-3 mt-4 mb-8">
+              <div className="stat-card p-6 bg-gray-900 border-gray-800">
+                <h2 className="text-xl font-pixel text-white flex items-center gap-3 mb-6">
+                  <span className="text-2xl">🏆</span>
+                  UNLOCKED ACHIEVEMENTS
+                </h2>
+                
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  {ACHIEVEMENTS.map(ach => {
+                    const isUnlocked = unlockedAchievements.includes(ach.id);
+                    return (
+                      <div 
+                        key={ach.id} 
+                        title={isUnlocked ? `${ach.title} : ${ach.description}` : "Locked"}
+                        className={`group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 ${isUnlocked ? ach.colorClass + ' pixel-slot text-white' : 'bg-gray-800 pixel-slot opacity-60'} cursor-help`}
+                      >
+                        {isUnlocked ? (
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center relative z-10">
+                            <TransparentImage 
+                              src={ach.pixelIconUrl} 
+                              alt={ach.title} 
+                              className="w-full h-full object-contain" 
+                              style={{ filter: 'drop-shadow(2px 2px 0px rgba(0,0,0,0.6))', imageRendering: 'pixelated' }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-xl font-pixel text-gray-900 relative z-10 drop-shadow-sm">?</div>
+                        )}
+                        
+                        {/* ツールチップ（PCホバー用） */}
+                        {isUnlocked && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 pixel-border-sm text-white text-xs opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
+                            <div className="font-pixel text-yellow-400 mb-1">{ach.title}</div>
+                            <div className="font-bold text-gray-300">{ach.description}</div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="mt-6 text-right">
+                  <span className="font-pixel text-gray-400 text-sm">
+                    COMPLETED: {unlockedAchievements.length} / {ACHIEVEMENTS.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+
           </motion.div>
         ) : (
           <motion.div 
