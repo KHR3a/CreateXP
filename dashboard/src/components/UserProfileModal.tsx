@@ -92,27 +92,24 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="bg-white w-full max-w-md relative overflow-hidden rounded-3xl shadow-2xl"
+          className="stat-card p-1 w-full max-w-md relative"
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white hover:bg-black/20 rounded-full transition-colors z-20"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* トラッカー風ヘッダーバナー */}
-          <div className="w-full h-32 bg-gray-900 relative">
-            <div className="absolute inset-0 opacity-40 bg-gradient-to-r from-neon-blue via-gray-900 to-neon-pink"></div>
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="win95-titlebar mb-1 bg-gradient-to-r from-blue-800 to-blue-600">
+            <span className="flex items-center gap-2">UserProfile.exe</span>
+            <button
+              onClick={onClose}
+              className="win95-btn py-0 px-2 ml-auto text-black border-2"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          <div className="px-6 pb-6 relative">
-            {/* プロフィールアイコン（バナーに重なる） */}
-            <div className="flex justify-between items-end -mt-12 mb-4">
-              <div className="w-24 h-24 rounded-2xl bg-white p-1 shadow-lg relative z-10">
-                <div className="w-full h-full rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+          <div className="win95-inset bg-gray-100 px-6 pb-6 pt-10 relative">
+            {/* プロフィールアイコン */}
+            <div className="flex justify-between items-end mb-4">
+              <div className="w-24 h-24 win95-inset bg-white p-1">
+                <div className="w-full h-full border-2 border-gray-300 flex items-center justify-center bg-gray-200">
                   {user.photoURL ? (
                     <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -123,36 +120,36 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
 
               <div className="flex gap-2">
                 {user.socialInstagram && (
-                  <a href={user.socialInstagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-pink-50 border-2 border-pink-100 hover:bg-pink-500 hover:text-white transition-colors text-pink-500">
-                    <InstagramIcon className="w-5 h-5" />
+                  <a href={user.socialInstagram} target="_blank" rel="noopener noreferrer" className="win95-btn">
+                    <InstagramIcon className="w-5 h-5 text-pink-500" />
                   </a>
                 )}
                 {user.socialX && (
-                  <a href={user.socialX} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-blue-50 border-2 border-blue-100 hover:bg-blue-500 hover:text-white transition-colors text-blue-500">
-                    <XIcon className="w-5 h-5" />
+                  <a href={user.socialX} target="_blank" rel="noopener noreferrer" className="win95-btn">
+                    <XIcon className="w-5 h-5 text-blue-500" />
                   </a>
                 )}
               </div>
             </div>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-baseline gap-1">
+              <h2 className="text-2xl font-black text-gray-900 tracking-tight flex items-baseline gap-1 font-[Tahoma]">
                 {user.displayName.split('#')[0]}
-                <span className="text-sm font-bold text-gray-400">#{user.displayName.split('#')[1]}</span>
+                <span className="text-sm font-bold text-gray-500 ml-1">#{user.displayName.split('#')[1]}</span>
               </h2>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100 flex flex-col items-center justify-center">
+              <div className="win95-inset bg-white p-4 flex flex-col items-center justify-center">
                 <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
-                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-pink">
+                <div className="text-4xl font-black text-blue-700">
                   {level}
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-100 flex flex-col items-center justify-center">
+              <div className="win95-inset bg-white p-4 flex flex-col items-center justify-center">
                 <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total XP</div>
-                <div className="text-3xl font-black text-gray-900">
+                <div className="text-3xl font-black text-green-700">
                   {user.totalXP.toLocaleString()}
                 </div>
               </div>
@@ -188,43 +185,36 @@ export default function UserProfileModal({ user, onClose }: UserProfileModalProp
 
             {/* Recent Activity */}
             <div>
-              <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2 border-b-2 border-gray-100 pb-2">
-                <Award className="w-4 h-4 text-neon-pink" />
-                Recent Quests
-              </h3>
+              <div className="win95-titlebar mb-1 bg-gradient-to-r from-gray-600 to-gray-400">
+                <span className="text-xs">Recent_Quests.log</span>
+              </div>
 
-              {user.hideActivity ? (
-                <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-gray-100 border-dashed text-gray-500 font-bold">
-                  Private Profile
-                </div>
-              ) : isLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              ) : activities.length > 0 ? (
-                <div className="space-y-3">
-                  {activities.map(activity => (
-                    <div key={activity.id} className={`flex items-stretch overflow-hidden relative rounded-lg border-2 border-gray-100 ${activity.type === 'Save' ? 'bg-white' : 'bg-pink-50/50'}`}>
-                      {/* 左端のカラーバー */}
-                      <div className={`w-2 flex-shrink-0 ${activity.type === 'Save' ? 'bg-neon-blue' : 'bg-neon-pink'}`}></div>
-
-                      <div className="p-3 flex flex-grow justify-between items-center">
-                        <div className="overflow-hidden pr-2">
-                          <div className="text-xs font-black text-gray-900 mb-0.5">{activity.type.toUpperCase()}</div>
-                          <div className="text-xs font-bold text-gray-500 truncate">{activity.file}</div>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className={`text-lg font-black ${activity.type === 'Save' ? 'text-neon-blue' : 'text-neon-pink'}`}>+{activity.xp}</div>
-                        </div>
+              <div className="win95-inset-black p-4 h-48 overflow-y-auto">
+                {user.hideActivity ? (
+                  <div className="text-center py-6 text-gray-500 font-bold font-mono">
+                    C:\&gt; Access Denied (Private Profile)
+                  </div>
+                ) : isLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : activities.length > 0 ? (
+                  <div className="space-y-1 font-mono text-sm text-green-400">
+                    {activities.map(activity => (
+                      <div key={activity.id} className="flex gap-4">
+                        <span className="text-gray-500">[{activity.time.split(' ')[1] || activity.time}]</span>
+                        <span className="text-cyan-400">{activity.type.padEnd(6, ' ')}</span>
+                        <span className="flex-grow text-white truncate">{activity.file}</span>
+                        <span className="text-yellow-400">+{activity.xp} XP</span>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-gray-100 border-dashed text-gray-500 font-bold">
-                  No recent activity.
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-gray-500 font-bold font-mono">
+                    C:\&gt; No recent quests found.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>

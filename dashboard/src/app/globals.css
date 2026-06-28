@@ -52,6 +52,15 @@ body {
   border-bottom: 2px solid #ffffff;
 }
 
+/* 黒背景のターミナル風パネル */
+.win95-inset-black {
+  background: #000000;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-right: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+
 /* Win95 ウィンドウのタイトルバー */
 .win95-titlebar {
   background: linear-gradient(90deg, #000080, #1084d0);

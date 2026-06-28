@@ -391,22 +391,20 @@ export default function MyPage() {
                 </h2>
                 <div className="flex flex-col gap-3">
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => simulateAction("Save")}
-                    className="px-4 py-3 bg-white hover:bg-gray-50 rounded-xl flex items-center justify-between transition-colors border-2 border-gray-200 cursor-pointer shadow-sm group"
+                    className="win95-btn flex items-center justify-between group"
                   >
-                    <span className="flex items-center gap-2 font-bold text-gray-700"><Save className="w-4 h-4 text-neon-blue" /> Save</span>
-                    <span className="font-black text-neon-blue bg-blue-50 px-2 py-1 rounded-md text-xs group-hover:bg-blue-100">+5 XP</span>
+                    <span className="flex items-center gap-2 text-black"><Save className="w-4 h-4 text-blue-800" /> Save</span>
+                    <span className="font-black text-blue-800 text-xs">+5 XP</span>
                   </motion.button>
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => simulateAction("Export")}
-                    className="px-4 py-3 bg-white hover:bg-gray-50 rounded-xl flex items-center justify-between transition-colors border-2 border-gray-200 cursor-pointer shadow-sm group"
+                    className="win95-btn flex items-center justify-between group"
                   >
-                    <span className="flex items-center gap-2 font-bold text-gray-700"><FileVideo className="w-4 h-4 text-neon-pink" /> Export</span>
-                    <span className="font-black text-neon-pink bg-pink-50 px-2 py-1 rounded-md text-xs group-hover:bg-pink-100">+50 XP</span>
+                    <span className="flex items-center gap-2 text-black"><FileVideo className="w-4 h-4 text-pink-800" /> Export</span>
+                    <span className="font-black text-pink-800 text-xs">+50 XP</span>
                   </motion.button>
                 </div>
               </section>
@@ -418,7 +416,7 @@ export default function MyPage() {
                 <div className="win95-titlebar mb-1 bg-gradient-to-r from-gray-600 to-gray-400">
                   <span>Recent_Quests.log</span>
                 </div>
-                <div className="win95-inset bg-black p-4 min-h-[300px]">
+                <div className="win95-inset-black p-4 min-h-[300px] overflow-y-auto">
                   <AnimatePresence mode="popLayout">
                     {recentLogs.map((log) => (
                       <motion.div 
