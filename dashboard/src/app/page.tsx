@@ -167,21 +167,21 @@ export default function RankingPage() {
       </div>
 
       {/* 期間切り替えタブ */}
-      <div className="flex justify-center gap-3 mb-10">
+      <div className="flex justify-center gap-1 mb-10 border-b-2 border-white pb-px">
         {(["total", "monthly", "weekly", "daily"] as Period[]).map((p) => (
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-sm border-2 ${
+            className={`flex items-center justify-center gap-2 px-6 py-2 font-bold font-[Tahoma] text-sm uppercase tracking-wider ${
               period === p
-                ? "win95-inset text-black"
-                : "win95-btn"
+                ? "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-[#000000] border-b-0 z-10 -mb-[2px] pb-[4px]"
+                : "bg-[#c0c0c0] text-black border-t-2 border-l-2 border-white border-r-2 border-b-2 border-[#000000] hover:bg-[#d0d0d0]"
             }`}
           >
-            {p === "daily" && <Star className="w-4 h-4 inline-block mr-2" />}
-            {p === "weekly" && <CalendarDays className="w-4 h-4 inline-block mr-2" />}
-            {p === "monthly" && <Calendar className="w-4 h-4 inline-block mr-2" />}
-            {p === "total" && <Crown className="w-4 h-4 inline-block mr-2" />}
+            {p === "daily" && <Star className="w-4 h-4" />}
+            {p === "weekly" && <CalendarDays className="w-4 h-4" />}
+            {p === "monthly" && <Calendar className="w-4 h-4" />}
+            {p === "total" && <Crown className="w-4 h-4" />}
             {periodLabels[p]}
           </button>
         ))}
@@ -189,12 +189,12 @@ export default function RankingPage() {
 
       {isLoading ? (
         <div className="flex justify-center mt-20">
-          <div className="w-12 h-12 border-4 border-neon-orange border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : isPeriodLoading ? (
         <div className="flex flex-col items-center mt-16 gap-4">
-          <div className="w-10 h-10 border-4 border-neon-orange border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-400 text-sm">Loading {periodLabels[period]} ranking...</p>
+          <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-white font-bold text-sm">Loading {periodLabels[period]} ranking.exe...</p>
         </div>
       ) : (
         <div>
