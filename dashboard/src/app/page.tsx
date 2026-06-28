@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Medal, Star, User, Calendar, CalendarDays, Crown } from "lucide-react";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { collection, collectionGroup, query, orderBy, limit, onSnapshot, where, Timestamp } from "firebase/firestore";
 import UserProfileModal from "@/components/UserProfileModal";
 
@@ -30,8 +31,26 @@ export default function RankingPage() {
   const [selectedUser, setSelectedUser] = useState<RankedUser | null>(null);
   const [period, setPeriod] = useState<Period>("total");
 
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+
+  // 認証状態の監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      // 未ログイン状態が確定した場合もLoadingを解除（データは空になる）
+      if (!user) {
+        setIsLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   // 全ユーザーデータをリアルタイムで取得
   useEffect(() => {
+    // ログインしていない場合はFirestoreのルール（認証必須）により取得できないためスキップ
+    if (!currentUser) return;
+
+    setIsLoading(true);
     const q = query(collection(db, "users"), orderBy("totalXP", "desc"), limit(100));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -49,10 +68,13 @@ export default function RankingPage() {
       
       setAllUsers(users);
       setIsLoading(false);
+    }, (error) => {
+      console.error("Failed to fetch users:", error);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUser]);
 
   // 期間別のXP集計（Daily / Weekly / Monthly）
   useEffect(() => {
