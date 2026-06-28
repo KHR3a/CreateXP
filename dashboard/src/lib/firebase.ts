@@ -1,9 +1,9 @@
 // Firebase設定
 // .env.local にAPIキーを設定してね！
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +16,10 @@ const firebaseConfig = {
 };
 
 // ビルド時（プリレンダリング時）にAPIキーが未定義の場合でもクラッシュしないようにガード
-let app, db, auth, storage;
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+let auth: Auth | null = null;
+let storage: FirebaseStorage | null = null;
 
 if (firebaseConfig.apiKey) {
   // 多重初期化を防止するガード
@@ -27,10 +30,7 @@ if (firebaseConfig.apiKey) {
 } else {
   // ビルド時のプリレンダリング用ダミー（実行時には環境変数が利用可能）
   console.warn('Firebase APIキーが未設定です。ビルド時のプリレンダリングではFirebase機能は無効です。');
-  app = null as any;
-  db = null as any;
-  auth = null as any;
-  storage = null as any;
 }
 
 export { app, db, auth, storage };
+
