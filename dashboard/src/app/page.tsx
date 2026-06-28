@@ -228,10 +228,10 @@ export default function RankingPage() {
                       <div className="flex items-center justify-between p-4">
                         <div className="flex items-center gap-6">
                           {user.photoURL ? (
-                            <img src={user.photoURL} alt="Avatar" className="w-16 h-16 rounded-none object-cover border-2 border-gray-400" />
+                            <img src={user.photoURL} alt="Avatar" className="w-24 h-24 rounded-none object-cover border-2 border-gray-400 shadow-[2px_2px_0px_rgba(0,0,0,0.3)]" />
                           ) : (
-                            <div className="w-16 h-16 rounded-none border-2 border-gray-400 bg-gray-200 flex items-center justify-center">
-                              <User className="w-8 h-8 text-gray-500" />
+                            <div className="w-24 h-24 rounded-none border-2 border-gray-400 bg-gray-200 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,0.3)]">
+                              <User className="w-12 h-12 text-gray-500" />
                             </div>
                           )}
                           <div>
