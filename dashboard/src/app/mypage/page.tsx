@@ -281,10 +281,10 @@ export default function MyPage() {
         
         {/* プロフィール情報（バナーと重なる） */}
         <div className="relative z-10 flex items-end gap-6 translate-y-8">
-          <div className="w-32 h-32 rounded-2xl bg-white p-1 shadow-xl">
-            <div className="w-full h-full rounded-xl overflow-hidden bg-gray-200 flex items-center justify-center">
+          <div className="w-32 h-32 win95-inset bg-gray-200 p-1">
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center border-2 border-white">
               {photoURL ? (
-                <img src={photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={photoURL} alt="Avatar" className="w-full h-full object-cover win95-inset" />
               ) : (
                 <User className="w-16 h-16 text-gray-400" />
               )}
@@ -342,37 +342,45 @@ export default function MyPage() {
           >
             {/* レベル・XP表示エリア (左カラム) */}
             <div className="space-y-6">
-              <section className="stat-card p-6 relative overflow-hidden bg-gradient-to-br from-white to-gray-50">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-neon-blue opacity-10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                
-                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Current Level</h3>
-                <div className="flex flex-col mb-6">
-                  <motion.div
-                    key={level}
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="text-7xl font-black text-gray-900 leading-none"
-                  >
-                    {level}
-                  </motion.div>
+              <section className="stat-card p-1">
+                <div className="win95-titlebar mb-1 bg-gradient-to-r from-blue-800 to-blue-600">
+                  <span>Status.exe</span>
                 </div>
+                <div className="win95-inset bg-white p-6 relative overflow-hidden">
+                  
+                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Current Level</h3>
+                  <div className="flex flex-col mb-6">
+                    <motion.div
+                      key={level}
+                      initial={{ scale: 1.1, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className="text-7xl font-black text-gray-900 leading-none font-[Tahoma]"
+                    >
+                      {level}
+                    </motion.div>
+                  </div>
 
-                <div className="mb-2 flex justify-between text-sm font-bold text-gray-600">
-                  <span>{xp.toLocaleString()} XP</span>
-                  <span className="text-gray-400">{(level + 1) * 100} XP</span>
+                  <div className="mb-2 flex justify-between text-sm font-bold text-gray-600">
+                    <span>{xp.toLocaleString()} XP</span>
+                    <span className="text-gray-400">{(level + 1) * 100} XP</span>
+                  </div>
+                  
+                  {/* Progress Bar (Win95 style) */}
+                  <div className="h-6 w-full win95-inset bg-white p-0.5 flex">
+                    {Array.from({ length: 20 }).map((_, i) => {
+                      const blockPercentage = (i + 1) * 5;
+                      const isActive = progressPercentage >= blockPercentage;
+                      return (
+                        <div 
+                          key={i} 
+                          className={`h-full flex-1 mr-0.5 ${isActive ? 'bg-[#000080]' : 'bg-transparent'}`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <p className="mt-3 text-xs font-bold text-gray-500 text-right">{xpToNextLevel} XP to Next Level</p>
                 </div>
-                
-                <div className="h-4 bg-gray-200 rounded-full overflow-hidden relative">
-                  <motion.div
-                    key={level}
-                    className="absolute top-0 left-0 h-full pop-gradient-bg"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercentage}%` }}
-                    transition={{ duration: 0.8, type: "spring" }}
-                  />
-                </div>
-                <p className="mt-3 text-xs font-bold text-gray-500 text-right">{xpToNextLevel} XP to Next Level</p>
               </section>
 
               {/* テスト用コントロール */}
@@ -406,45 +414,35 @@ export default function MyPage() {
 
             {/* アクティビティログ (右カラム) */}
             <div className="md:col-span-2 space-y-4">
-              <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
-                <Award className="text-neon-pink w-6 h-6" />
-                Recent Matches (Quests)
-              </h2>
-              
-              <div className="space-y-3">
-                <AnimatePresence mode="popLayout">
-                  {recentLogs.map((log) => (
-                    <motion.div 
-                      key={log.id}
-                      layout
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                      className={`stat-card flex items-stretch overflow-hidden relative ${log.type === 'Save' ? 'bg-white' : 'bg-pink-50/30'}`}
-                    >
-                      {/* 左端のカラーバー (Tracker風) */}
-                      <div className={`w-3 flex-shrink-0 ${log.type === 'Save' ? 'bg-neon-blue' : 'bg-neon-pink'}`}></div>
-                      
-                      <div className="p-4 flex flex-grow justify-between items-center">
-                        <div>
-                          <div className="text-sm font-black text-gray-900 mb-0.5">{log.type.toUpperCase()}</div>
-                          <div className="text-xs font-bold text-gray-500 mb-1">{log.time}</div>
-                          <div className="text-sm font-bold text-gray-700 truncate max-w-[200px] sm:max-w-[300px]">{log.file}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className={`text-2xl font-black ${log.type === 'Save' ? 'text-neon-blue' : 'text-neon-pink'}`}>+{log.xp}</div>
-                          <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">XP Earned</div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                {recentLogs.length === 0 && (
-                  <div className="stat-card p-8 text-center text-gray-500 font-bold">
-                    No recent quests found.
-                  </div>
-                )}
+              <div className="stat-card p-1">
+                <div className="win95-titlebar mb-1 bg-gradient-to-r from-gray-600 to-gray-400">
+                  <span>Recent_Quests.log</span>
+                </div>
+                <div className="win95-inset bg-black p-4 min-h-[300px]">
+                  <AnimatePresence mode="popLayout">
+                    {recentLogs.map((log) => (
+                      <motion.div 
+                        key={log.id}
+                        layout
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="flex gap-4 font-mono text-sm text-green-400 mb-1"
+                      >
+                        <span className="text-gray-500">[{log.time}]</span>
+                        <span className="text-cyan-400">{log.type.padEnd(6, ' ')}</span>
+                        <span className="flex-grow text-white truncate">{log.file}</span>
+                        <span className="text-yellow-400">+{log.xp} XP</span>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {recentLogs.length === 0 && (
+                    <div className="text-center text-gray-500 font-mono py-8">
+                      C:\&gt; No recent quests found.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -505,14 +503,13 @@ export default function MyPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="stat-card p-8 max-w-2xl mx-auto w-full relative overflow-hidden"
+            className="stat-card p-1 max-w-2xl mx-auto w-full relative"
           >
-            <h2 className="text-2xl font-black mb-8 text-gray-900 flex items-center gap-2 border-b-2 border-gray-100 pb-4">
-              <Settings className="w-6 h-6 text-neon-pink" />
-              Profile Settings
-            </h2>
+            <div className="win95-titlebar mb-1 bg-gradient-to-r from-blue-800 to-blue-600">
+              <span className="flex items-center gap-2">Settings.exe</span>
+            </div>
 
-            <div className="space-y-8">
+            <div className="win95-inset bg-white p-6 space-y-8">
               {/* アイコン変更 */}
               <div>
                 <label className="block text-sm font-bold text-gray-600 mb-4 uppercase tracking-wider">User Avatar</label>
@@ -535,12 +532,12 @@ export default function MyPage() {
                     <button 
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isSaving}
-                      className="px-4 py-2.5 bg-white hover:bg-gray-50 border-2 border-gray-200 rounded-xl font-bold flex items-center gap-2 transition-colors disabled:opacity-50 text-gray-800 shadow-sm"
+                      className="win95-btn"
                     >
-                      <Upload className="w-4 h-4 text-neon-blue" />
+                      <Upload className="w-4 h-4 text-blue-600" />
                       Upload Image
                     </button>
-                    <p className="text-xs font-bold text-gray-400 mt-2">Max 3MB. Recommended: 256x256px JPG/PNG.</p>
+                    <p className="text-xs font-bold text-gray-500 mt-2">Max 3MB. Recommended: 256x256px JPG/PNG.</p>
                   </div>
                 </div>
               </div>
@@ -620,19 +617,19 @@ export default function MyPage() {
                 </label>
               </div>
 
-              <div className="pt-6 border-t-2 border-gray-100 flex items-center justify-between">
-                <div className="text-neon-green font-bold text-sm">
+              <div className="pt-6 border-t-2 border-gray-300 flex items-center justify-between">
+                <div className="text-blue-800 font-bold text-sm">
                   {saveMessage}
                 </div>
                 <button 
                   onClick={handleSaveProfile}
                   disabled={isSaving || !editName.trim()}
-                  className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors flex items-center gap-2 disabled:opacity-50 shadow-md"
+                  className="win95-btn"
                 >
                   {isSaving ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <><Check className="w-5 h-5"/> Save Changes</>
+                    <><Check className="w-4 h-4 text-green-600"/> Save Changes</>
                   )}
                 </button>
               </div>

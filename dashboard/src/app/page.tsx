@@ -156,14 +156,14 @@ export default function RankingPage() {
   return (
     <main className="p-8 max-w-5xl mx-auto w-full">
       <div className="text-center mb-12 relative pt-8">
-        <h1 className="text-5xl font-black mb-4 flex items-center justify-center gap-4 text-gray-900 tracking-tight">
-          <Star className="w-10 h-10 text-neon-orange" />
-          <span className="pop-gradient-text">
-            Global Ranking
+        <h1 className="text-5xl font-black mb-4 flex items-center justify-center gap-4 tracking-tight neon-text" style={{ fontFamily: "'Tahoma', sans-serif" }}>
+          <Star className="w-10 h-10 text-cyan-400" />
+          <span>
+            GLOBAL RANKING
           </span>
-          <Star className="w-10 h-10 text-neon-orange" />
+          <Star className="w-10 h-10 text-cyan-400" />
         </h1>
-        <p className="text-gray-500 font-bold tracking-widest uppercase">Top Creators by Level</p>
+        <p className="text-cyan-200 font-bold tracking-widest uppercase">Top Creators on the Cyber Grid</p>
       </div>
 
       {/* 期間切り替えタブ */}
@@ -174,14 +174,14 @@ export default function RankingPage() {
             onClick={() => setPeriod(p)}
             className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all shadow-sm border-2 ${
               period === p
-                ? "bg-gray-900 text-white border-gray-900 shadow-md"
-                : "bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-gray-200"
+                ? "win95-inset text-black"
+                : "win95-btn"
             }`}
           >
-            {p === "daily" && <Star className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
-            {p === "weekly" && <CalendarDays className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
-            {p === "monthly" && <Calendar className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
-            {p === "total" && <Crown className="w-4 h-4 inline-block mr-2 -mt-0.5" />}
+            {p === "daily" && <Star className="w-4 h-4 inline-block mr-2" />}
+            {p === "weekly" && <CalendarDays className="w-4 h-4 inline-block mr-2" />}
+            {p === "monthly" && <Calendar className="w-4 h-4 inline-block mr-2" />}
+            {p === "total" && <Crown className="w-4 h-4 inline-block mr-2" />}
             {periodLabels[p]}
           </button>
         ))}
@@ -211,33 +211,55 @@ export default function RankingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.08 }}
                       onClick={() => setSelectedUser(user)}
-                      className={`stat-card flex items-center justify-between p-6 cursor-pointer hover:-translate-y-1 ${getTopBorderColor(index)}`}
-                    >
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center justify-center w-12 text-3xl font-black text-gray-300">
-                          {getRankMedal(index) || `#${index + 1}`}
+                      <div className="win95-titlebar mb-3">
+                        <div className="flex items-center gap-2">
+                          {getRankMedal(index)}
+                          <span>Rank #{index + 1}</span>
                         </div>
-                        {user.photoURL ? (
-                          <img src={user.photoURL} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-2xl bg-gray-100 border-2 border-gray-200 flex items-center justify-center shadow-sm">
-                            <User className="w-8 h-8 text-gray-400" />
-                          </div>
-                        )}
-                        <div>
-                          <div className="text-2xl font-black text-gray-900 tracking-tight">
-                            {user.displayName.split('#')[0]}
-                            <span className="text-sm font-bold text-gray-400 ml-1">#{user.displayName.split('#')[1]}</span>
-                          </div>
-                          <div className="text-sm font-bold text-gray-500 mt-1">{displayXP.toLocaleString()} XP</div>
+                        <div className="flex gap-1">
+                          <div className="w-4 h-4 bg-gray-300 border border-white shadow-sm flex items-center justify-center text-[10px] text-black">_</div>
+                          <div className="w-4 h-4 bg-gray-300 border border-white shadow-sm flex items-center justify-center text-[10px] text-black">□</div>
+                          <div className="w-4 h-4 bg-gray-300 border border-white shadow-sm flex items-center justify-center text-[10px] text-black">×</div>
                         </div>
                       </div>
                       
-                      <div className="text-right">
-                        <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
-                        <div className="text-5xl font-black pop-gradient-text leading-none tracking-tighter pb-1 flex items-center justify-end gap-1">
-                          {Math.floor(user.totalXP / 100)}
-                          {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-6 h-6 text-yellow-500" />}
+                      <div className="flex items-center justify-between p-4">
+                        <div className="flex items-center gap-6">
+                          {user.photoURL ? (
+                            <img src={user.photoURL} alt="Avatar" className="w-16 h-16 rounded-none object-cover win95-inset" />
+                          ) : (
+                            <div className="w-16 h-16 rounded-none win95-inset bg-gray-200 flex items-center justify-center">
+                              <User className="w-8 h-8 text-gray-500" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-2xl font-black text-gray-900 tracking-tight font-[Tahoma]">
+                              {user.displayName.split('#')[0]}
+                              <span className="text-sm font-bold text-gray-500 ml-1">#{user.displayName.split('#')[1]}</span>
+                            </div>
+                            <div className="text-sm font-bold text-blue-800 mt-1">Status: Active</div>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right win95-inset p-3 bg-white">
+                          {period === "total" ? (
+                            <>
+                              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Level</div>
+                              <div className="text-5xl font-black text-blue-700 leading-none tracking-tighter flex items-center justify-end gap-1">
+                                {Math.floor(user.totalXP / 100)}
+                                {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-6 h-6 text-yellow-500" />}
+                              </div>
+                              <div className="text-sm font-bold text-gray-500 mt-1">{displayXP.toLocaleString()} XP</div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{periodLabels[period]} XP</div>
+                              <div className="text-4xl font-black text-green-600 leading-none tracking-tighter flex items-center justify-end gap-1">
+                                {displayXP.toLocaleString()} <span className="text-lg">XP</span>
+                              </div>
+                              <div className="text-sm font-bold text-gray-500 mt-1">Lv.{Math.floor(user.totalXP / 100)}</div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -247,8 +269,11 @@ export default function RankingPage() {
             </AnimatePresence>
           </div>
 
-          {/* 4位以降: トラッカー風のテーブルリスト */}
-          <div className="stat-card overflow-hidden">
+          <div className="stat-card overflow-hidden mt-8 p-1">
+            <div className="win95-titlebar mb-1">
+              <span>Other Creators.exe</span>
+            </div>
+            <div className="win95-inset bg-white p-1">
             {restUsers.map((user, index) => {
               const rank = index + 4;
               const displayXP = getDisplayXP(user);
@@ -259,38 +284,45 @@ export default function RankingPage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 + index * 0.03 }}
                   onClick={() => setSelectedUser(user)}
-                  className="flex items-center justify-between py-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors border-b-2 border-gray-100 last:border-0"
+                  className="flex items-center justify-between py-2 px-4 cursor-pointer hover:bg-[#000080] hover:text-white transition-colors border-b border-gray-200 last:border-0 group"
                 >
                   <div className="flex items-center gap-4 w-1/2">
-                    <span className="text-lg font-black text-gray-400 w-8 text-center">{rank}</span>
+                    <span className="text-lg font-black text-gray-400 group-hover:text-gray-300 w-8 text-center">{rank}</span>
                     {user.photoURL ? (
-                      <img src={user.photoURL} alt="Avatar" className="w-10 h-10 rounded-xl object-cover border border-gray-200" />
+                      <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-none object-cover win95-inset group-hover:border-white" />
                     ) : (
-                      <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-400" />
+                      <div className="w-8 h-8 rounded-none win95-inset bg-gray-200 flex items-center justify-center group-hover:border-white">
+                        <User className="w-4 h-4 text-gray-500" />
                       </div>
                     )}
-                    <div className="text-base font-black text-gray-900 truncate">
+                    <div className="text-base font-bold truncate font-[Tahoma]">
                       {user.displayName.split('#')[0]}
-                      <span className="font-bold text-gray-400 ml-1 text-sm">#{user.displayName.split('#')[1]}</span>
+                      <span className="font-normal text-gray-400 group-hover:text-gray-300 ml-1 text-sm">#{user.displayName.split('#')[1]}</span>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-6 w-1/2 justify-end">
-                    <div className="text-sm font-bold text-gray-500 hidden sm:block">{displayXP.toLocaleString()} XP</div>
-                    <div className={`text-2xl font-black leading-none w-20 text-right flex items-center justify-end gap-1 ${
-                      Math.floor(user.totalXP / 100) >= 500 ? "text-yellow-500" :
-                      Math.floor(user.totalXP / 100) >= 100 ? "text-orange-500" :
-                      Math.floor(user.totalXP / 100) >= 50 ? "text-amber-500" :
-                      "text-gray-400"
-                    }`}>
-                      {Math.floor(user.totalXP / 100)}
-                      {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-4 h-4 text-yellow-500" />}
-                    </div>
+                    {period === "total" ? (
+                      <>
+                        <div className="text-sm font-bold text-gray-500 group-hover:text-gray-300 hidden sm:block">{displayXP.toLocaleString()} XP</div>
+                        <div className="text-2xl font-black leading-none w-20 text-right flex items-center justify-end gap-1">
+                          {Math.floor(user.totalXP / 100)}
+                          {Math.floor(user.totalXP / 100) >= 500 && <Crown className="w-4 h-4 text-yellow-500 group-hover:text-yellow-300" />}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-sm font-bold text-gray-500 group-hover:text-gray-300 hidden sm:block">Lv.{Math.floor(user.totalXP / 100)}</div>
+                        <div className="text-xl font-black leading-none text-right flex items-center justify-end gap-1">
+                          {displayXP.toLocaleString()} XP
+                        </div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               );
             })}
+            </div>
           </div>
           
           {rankedUsers.length === 0 && (
