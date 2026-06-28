@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Zap, Save, FileVideo, ShieldAlert, Award } from "lucide-react";
+import { X, User } from "lucide-react";
 import { InstagramIcon, XIcon } from "@/components/SocialIcons";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";

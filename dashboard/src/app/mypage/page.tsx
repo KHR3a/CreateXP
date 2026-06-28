@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Save, FileVideo, Award, Settings, User, Upload, Check } from "lucide-react";
+import { Zap, Save, FileVideo, Settings, User, Upload, Check } from "lucide-react";
 import { InstagramIcon, XIcon } from "@/components/SocialIcons";
 import { db, auth, storage } from "@/lib/firebase";
 import { doc, onSnapshot, collection, query, orderBy, limit, addDoc, serverTimestamp, setDoc, increment, getDoc, updateDoc } from "firebase/firestore";

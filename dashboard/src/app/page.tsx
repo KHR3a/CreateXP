@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Medal, Star, User, Calendar, CalendarDays, Crown } from "lucide-react";
+import { Medal, Star, User, Calendar, CalendarDays, Crown } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, collectionGroup, query, orderBy, limit, onSnapshot, where, Timestamp } from "firebase/firestore";
 import UserProfileModal from "@/components/UserProfileModal";
@@ -134,15 +134,6 @@ export default function RankingPage() {
       case 1: return <Medal className="w-8 h-8 text-gray-400 drop-shadow-sm" />;
       case 2: return <Medal className="w-8 h-8 text-amber-600 drop-shadow-sm" />;
       default: return null;
-    }
-  };
-
-  const getTopBorderColor = (index: number) => {
-    switch (index) {
-      case 0: return "border-yellow-400 border-l-4";
-      case 1: return "border-gray-300 border-l-4";
-      case 2: return "border-amber-600 border-l-4";
-      default: return "border-gray-200 border-l-4";
     }
   };
 
